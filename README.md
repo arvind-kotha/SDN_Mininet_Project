@@ -12,7 +12,7 @@ This project implements an SDN-based solution where a central POX controller:
 - Monitors all switch port state changes in real time
 - Detects link failures immediately via OpenFlow `PortStatus` events
 - Clears stale flow rules from affected switches
-- Restores connectivity automatically by rerouting traffic through backup paths
+- Restores connectivity automatically by rerouting traffic through backup paths  
 
 ---
 
@@ -52,7 +52,7 @@ sudo apt install mininet -y
 git clone https://github.com/noxrepo/pox.git ~/pox
 
 # Copy controller into POX's ext directory
-cp resilient_switch.py ~/pox/pox/ext/
+cp failover_controller.py ~/pox/pox/ext/
 ```
 
 ---
@@ -62,12 +62,12 @@ cp resilient_switch.py ~/pox/pox/ext/
 **Terminal 1 — Start the POX controller:**
 ```bash
 cd ~/pox
-python3 pox.py log.level --DEBUG ext.resilient_switch
+python3 pox.py log.level --DEBUG ext.failover_controller
 ```
 
 You should see:
 ```
-INFO:resilient_switch:Failover Controller started
+INFO:failover_controller:Failover Controller started
 DEBUG:openflow.of_01:Listening on 0.0.0.0:6633
 ```
 
@@ -114,7 +114,7 @@ mininet> link s1 s2 down
 
 **Expected POX output:**
 ```
-WARNING:resilient_switch:LINK DOWN: switch 00-00-00-00-00-01 port 2 -- clearing flows
+WARNING:failover_controller:LINK DOWN: switch 00-00-00-00-00-01 port 2 -- clearing flows
 ```
 
 Traffic automatically reroutes via s1 → s3 → s2. Ping continues with minimal interruption.
@@ -126,7 +126,7 @@ mininet> link s1 s2 up
 
 **Expected POX output:**
 ```
-INFO:resilient_switch:LINK UP: switch 00-00-00-00-00-01 port 2 -- connectivity restored
+INFO:failover_controller:LINK UP: switch 00-00-00-00-00-01 port 2 -- connectivity restored
 ```
 
 ---
@@ -155,7 +155,7 @@ mininet> sh ovs-ofctl dump-flows s3
 
 ## Controller Logic
 
-The controller (`resilient_switch.py`) handles three OpenFlow events:
+The controller (`failover_controller.py`) handles three OpenFlow events:
 
 **`ConnectionUp`** — Fired when a switch connects. Logged for monitoring.
 
@@ -171,7 +171,7 @@ The controller (`resilient_switch.py`) handles three OpenFlow events:
 
 ```
 ├── topo.py                  # Custom Mininet triangle topology
-├── resilient_switch.py      # POX controller (copy to ~/pox/pox/ext/)
+├── failover_controller.py      # POX controller (copy to ~/pox/pox/ext/)
 └── README.md
 ```
 
